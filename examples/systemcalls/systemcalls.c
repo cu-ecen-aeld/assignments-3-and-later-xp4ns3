@@ -1,3 +1,10 @@
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "systemcalls.h"
 
 /**
@@ -10,14 +17,28 @@
 bool do_system(const char *cmd)
 {
 
-/*
- * TODO  add your code here
- *  Call the system() function with the command set in the cmd
- *   and return a boolean true if the system() call completed with success
- *   or false() if it returned a failure
-*/
+	/*
+	 * TODO  add your code here
+	 *  Call the system() function with the command set in the cmd
+	 *   and return a boolean true if the system() call completed with success
+	 *   or false() if it returned a failure
+	*/
+	
+	int ret;
 
-    return true;
+	if(!cmd)
+		return false;
+        
+	//if (cmd[0] != '/')
+	//	return false;
+
+	printf("%s\n", cmd);
+
+	ret = system(cmd);
+	if (ret == -1)
+		return false; 
+
+	return true;
 }
 
 /**
@@ -36,32 +57,62 @@ bool do_system(const char *cmd)
 
 bool do_exec(int count, ...)
 {
-    va_list args;
-    va_start(args, count);
-    char * command[count+1];
-    int i;
-    for(i=0; i<count; i++)
-    {
-        command[i] = va_arg(args, char *);
-    }
-    command[count] = NULL;
-    // this line is to avoid a compile warning before your implementation is complete
-    // and may be removed
-    command[count] = command[count];
+	va_list args;
+	va_start(args, count);
+	char * command[count+1];
+	int i;
+	pid_t pid;
+	int status;
 
-/*
- * TODO:
- *   Execute a system command by calling fork, execv(),
- *   and wait instead of system (see LSP page 161).
- *   Use the command[0] as the full path to the command to execute
- *   (first argument to execv), and use the remaining arguments
- *   as second argument to the execv() command.
- *
-*/
+	//if (count < 1)
+	//	return false;
 
-    va_end(args);
+	for(i=0; i<count; i++)
+		command[i] = va_arg(args, char *);
+	command[count] = NULL;
 
-    return true;
+	//if (*command[0] != '/')
+	//	return false;
+
+	// this line is to avoid a compile warning before your implementation is complete
+	// and may be removed
+	// command[count] = command[count];
+
+	/*
+	 * TODO:
+	 *   Execute a system command by calling fork, execv(),
+	 *   and wait instead of system (see LSP page 161).
+	 *   Use the command[0] as the full path to the command to execute
+	 *   (first argument to execv), and use the remaining arguments
+	 *   as second argument to the execv() command.
+	 *
+	*/
+
+	pid = fork();
+	if (pid == -1)
+		return false;
+
+	if (pid == 0) {
+		
+		for (i = 0; i < count; i++)
+			printf("%s\t", command[i]);
+		printf("\n");
+
+		execv(command[0], command);
+		exit(EXIT_FAILURE);
+	}
+
+	if (waitpid(-1, &status, 0) == -1) {
+		perror(strerror(errno));
+		return false;
+	}
+
+	if (!WIFEXITED(status) || WEXITSTATUS(status))
+		return false;
+
+	va_end(args);
+
+	return true;
 }
 
 /**
