@@ -24,8 +24,8 @@ bool do_system(const char *cmd)
 	 *   and return a boolean true if the system() call completed with success
 	 *   or false() if it returned a failure
 	*/
-	
-	int ret; 
+
+	int ret;
 
 	if(!cmd)
 		return false;
@@ -60,13 +60,16 @@ bool do_exec(int count, ...)
 	pid_t pid;
 	int status;
 
-	//if (count < 1)
-	//	return false;
+	if (count < 1)
+		return false;
 
 	for(i=0; i<count; i++)
 		command[i] = va_arg(args, char *);
 	command[count] = NULL;
-	
+
+	if (*command[0] != '/')
+		return false;
+
 	/*
 	 * TODO:
 	 *   Execute a system command by calling fork, execv(),
@@ -85,11 +88,10 @@ bool do_exec(int count, ...)
 
 	if (pid == 0) {
 		execv(command[0], command);
-		exit(EXIT_FAILURE);
+		return false;
 	}
 
 	if (waitpid(-1, &status, 0) == -1) {
-		perror(strerror(errno));
 		return false;
 	}
 
@@ -108,29 +110,57 @@ bool do_exec(int count, ...)
 */
 bool do_exec_redirect(const char *outputfile, int count, ...)
 {
-    va_list args;
-    va_start(args, count);
-    char * command[count+1];
-    int i;
-    for(i=0; i<count; i++)
-    {
-        command[i] = va_arg(args, char *);
-    }
-    command[count] = NULL;
-    // this line is to avoid a compile warning before your implementation is complete
-    // and may be removed
-    command[count] = command[count];
+	va_list args;
+	va_start(args, count);
+	char * command[count+1];
+	int i;
+	pid_t pid;
+	int status;
+	int fd;
+	
+	for(i=0; i<count; i++)
+		command[i] = va_arg(args, char *);
+	command[count] = NULL;
 
+	/*
+	 * TODO
+	 *   Call execv, but first using https://stackoverflow.com/a/13784315/1446624 as a refernce,
+	 *   redirect standard out to a file specified by outputfile.
+	 *   The rest of the behaviour is same as do_exec()
+	 *
+	*/
 
-/*
- * TODO
- *   Call execv, but first using https://stackoverflow.com/a/13784315/1446624 as a refernce,
- *   redirect standard out to a file specified by outputfile.
- *   The rest of the behaviour is same as do_exec()
- *
-*/
+	fflush(stdout);
 
-    va_end(args);
+	fd = open(outputfile, O_WRONLY|O_TRUNC|O_CREAT, 0644);
+	if (fd < 0)
+		return false;
+        
+	pid = fork();
+        if (pid == -1)
+		goto err_out;
+	
+        
+	if (pid == 0) {
+		if (dup2(fd, 1) < 0) {
+			close(fd);
+			return false;
+		}
+		execv(command[0], command);
+		return false;
+        }
 
-    return true;
+        if (waitpid(-1, &status, 0) == -1)
+                goto err_out;
+
+        if (!WIFEXITED(status) || WEXITSTATUS(status))
+		goto err_out;
+    
+	va_end(args);
+
+	return true;
+
+err_out:
+	close(fd);
+	return false;
 }
