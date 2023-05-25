@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "systemcalls.h"
@@ -24,15 +25,10 @@ bool do_system(const char *cmd)
 	 *   or false() if it returned a failure
 	*/
 	
-	int ret;
+	int ret; 
 
 	if(!cmd)
 		return false;
-        
-	//if (cmd[0] != '/')
-	//	return false;
-
-	printf("%s\n", cmd);
 
 	ret = system(cmd);
 	if (ret == -1)
@@ -70,14 +66,7 @@ bool do_exec(int count, ...)
 	for(i=0; i<count; i++)
 		command[i] = va_arg(args, char *);
 	command[count] = NULL;
-
-	//if (*command[0] != '/')
-	//	return false;
-
-	// this line is to avoid a compile warning before your implementation is complete
-	// and may be removed
-	// command[count] = command[count];
-
+	
 	/*
 	 * TODO:
 	 *   Execute a system command by calling fork, execv(),
@@ -87,17 +76,14 @@ bool do_exec(int count, ...)
 	 *   as second argument to the execv() command.
 	 *
 	*/
+	
+	fflush(stdout);
 
 	pid = fork();
 	if (pid == -1)
 		return false;
 
 	if (pid == 0) {
-		
-		for (i = 0; i < count; i++)
-			printf("%s\t", command[i]);
-		printf("\n");
-
 		execv(command[0], command);
 		exit(EXIT_FAILURE);
 	}
