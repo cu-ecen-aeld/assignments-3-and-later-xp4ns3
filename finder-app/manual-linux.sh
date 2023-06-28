@@ -22,6 +22,11 @@ else
 fi
 
 mkdir -p ${OUTDIR}
+if [ ! -d "$OUTDIR" ]
+then
+	echo "The creation of "$OUTDIR" failed, exiting..."
+        exit 1
+fi
 
 cd "$OUTDIR"
 if [ ! -d "${OUTDIR}/linux-stable" ]; then
@@ -30,37 +35,53 @@ if [ ! -d "${OUTDIR}/linux-stable" ]; then
 	git clone ${KERNEL_REPO} --depth 1 --single-branch --branch ${KERNEL_VERSION}
 fi
 if [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ]; then
-    cd linux-stable
-    echo "Checking out version ${KERNEL_VERSION}"
-    git checkout ${KERNEL_VERSION}
+	cd linux-stable
+	echo "Checking out version ${KERNEL_VERSION}"
+	git checkout ${KERNEL_VERSION}
 
-    # TODO: Add your kernel build steps here
+	# TODO: Add your kernel build steps here
+	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make mrproper
+	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make defconfig
+	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make -j6
+	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make modules
+	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make dtbs
 fi
 
 echo "Adding the Image in outdir"
+cp ${OUTDIR}/linux-stable/arch/arm64/boot/Image ${OUTDIR}
 
 echo "Creating the staging directory for the root filesystem"
 cd "$OUTDIR"
 if [ -d "${OUTDIR}/rootfs" ]
 then
 	echo "Deleting rootfs directory at ${OUTDIR}/rootfs and starting over"
-    sudo rm  -rf ${OUTDIR}/rootfs
+	sudo rm -rf ${OUTDIR}/rootfs
 fi
 
 # TODO: Create necessary base directories
+cd "${OUTDIR}"
+mkdir rootfs
+cd rootfs
+mkdir bin dev etc home lib lib64 proc sbin sys tmp usr var
+mkdir usr/bin usr/lib usr/sbin
+mkdir var/log
 
-cd "$OUTDIR"
+cd "${OUTDIR}"
 if [ ! -d "${OUTDIR}/busybox" ]
 then
-git clone git://busybox.net/busybox.git
-    cd busybox
-    git checkout ${BUSYBOX_VERSION}
-    # TODO:  Configure busybox
+	git clone git://busybox.net/busybox.git
+	cd busybox
+	git checkout ${BUSYBOX_VERSION}
+	# TODO:  Configure busybox
+	make distclean
+	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make defconfig
 else
-    cd busybox
+	cd busybox
 fi
 
 # TODO: Make and install busybox
+	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make -j6
+	CONFIG_PREFIX=${OUTDIR}/rootfs ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} install
 
 echo "Library dependencies"
 ${CROSS_COMPILE}readelf -a bin/busybox | grep "program interpreter"
