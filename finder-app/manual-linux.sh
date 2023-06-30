@@ -129,7 +129,7 @@ cp conf/username.txt "${OUTDIR}/rootfs/conf/"
 
 # Chown the root directory
 
-sudo chown -Rf root:root "${OUTDIR}/rootfs"
+sudo chown root:root "${OUTDIR}/rootfs"
 
 # Create initramfs.cpio.gz
 
