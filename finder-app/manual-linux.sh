@@ -96,16 +96,16 @@ echo "Copying dependency files"
 TOOLCHAINPATH=$(dirname `which "${CROSS_COMPILE}gcc"`)
 TOOLCHAINDIR=$(dirname $TOOLCHAINPATH)
 echo $TOOLCHAINDIR
-cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib/ld-linux-aarch64.so.1" ./lib/
-cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib64/libm.so.6" ./lib64/
-cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib64/libresolv.so.2" ./lib64/
-cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib64/libc.so.6" ./lib64/
+cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib/ld-linux-aarch64.so.1" lib/
+cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib64/libm.so.6" lib64/
+cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib64/libresolv.so.2" lib64/
+cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib64/libc.so.6" lib64/
 echo "Done Copying dependency files"
 
 # Make device nodes
 
-sudo mknod -m 666 ./dev/null c 1 3
-sudo mknod -m 666 ./dev/console c 5 1
+sudo mknod -m 666 dev/null c 1 3
+sudo mknod -m 666 dev/console c 5 1
 
 # Clean and build the writer utility
 
@@ -116,10 +116,10 @@ CROSS_COMPILE="$CROSS_COMPILE" make
 # Copy the finder related scripts and executables to the /home directory
 # on the target rootfs
 
-cp -a autorun-qemu.sh "${OUTDIR}/rootfs/home/"
-cp -a writer "${OUTDIR}/rootfs/home/"
-cp -a finder.sh "${OUTDIR}/rootfs/home/"
-cp -a finder-test.sh "${OUTDIR}/rootfs/home/"
+cp autorun-qemu.sh "${OUTDIR}/rootfs/home/"
+cp writer "${OUTDIR}/rootfs/home/"
+cp finder.sh "${OUTDIR}/rootfs/home/"
+cp finder-test.sh "${OUTDIR}/rootfs/home/"
 mkdir -p "${OUTDIR}/rootfs/home/conf/"
 cp conf/assignment.txt "${OUTDIR}/rootfs/home/conf/"
 cp conf/username.txt "${OUTDIR}/rootfs/home/conf/"
