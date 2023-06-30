@@ -40,6 +40,7 @@ if [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ]; then
 	git checkout ${KERNEL_VERSION}
 
 	# TODO: Add your kernel build steps here
+
 	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make mrproper
 	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make defconfig
 	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make -j6
@@ -59,7 +60,7 @@ then
 fi
 
 # TODO: Create necessary base directories
-cd "${OUTDIR}"
+
 mkdir rootfs
 cd rootfs
 mkdir bin dev etc home lib lib64 proc sbin sys tmp usr var
@@ -72,30 +73,66 @@ then
 	git clone git://busybox.net/busybox.git
 	cd busybox
 	git checkout ${BUSYBOX_VERSION}
+	
 	# TODO:  Configure busybox
-	make distclean
-	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make defconfig
+	
+	make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} distclean
+	make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} defconfig
 else
 	cd busybox
 fi
 
 # TODO: Make and install busybox
-	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make -j6
-	CONFIG_PREFIX=${OUTDIR}/rootfs ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} install
+
+make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE}
+make CONFIG_PREFIX="${OUTDIR}/rootfs" ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} install
+cd "${OUTDIR}/rootfs"
 
 echo "Library dependencies"
-${CROSS_COMPILE}readelf -a bin/busybox | grep "program interpreter"
-${CROSS_COMPILE}readelf -a bin/busybox | grep "Shared library"
+${CROSS_COMPILE}readelf -a ./bin/busybox | grep "program interpreter"
+${CROSS_COMPILE}readelf -a ./bin/busybox | grep "Shared library"
 
-# TODO: Add library dependencies to rootfs
+echo "Copying dependency files"
+TOOLCHAINPATH=$(dirname `which "${CROSS_COMPILE}gcc"`)
+TOOLCHAINDIR=$(dirname $TOOLCHAINPATH)
+echo $TOOLCHAINDIR
+cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib/ld-linux-aarch64.so.1" lib/ld-linux-aarch64.so.1
+cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib64/libm.so.6" lib64/libm.so.6
+cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib64/libresolv.so.2" lib64/libresolv.so.2
+cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib64/libc.so.6" lib64/libc.so.6
+echo "Done Copying dependency files"
 
 # TODO: Make device nodes
 
+sudo mknod -m 666 dev/null c 1 3
+sudo mknod -m 666 dev/console c 5 1
+
 # TODO: Clean and build the writer utility
+
+cd "${FINDER_APP_DIR}"
+make clean
+CROSS_COMPILE="$CROSS_COMPILE" make
 
 # TODO: Copy the finder related scripts and executables to the /home directory
 # on the target rootfs
 
+cp autorun-qemu.sh "${OUTDIR}/rootfs/home/"
+cp writer "${OUTDIR}/rootfs/home/"
+cp finder.sh "${OUTDIR}/rootfs/home/"
+cp finder-test.sh "${OUTDIR}/rootfs/home/"
+mkdir "${OUTDIR}/rootfs/home/conf/"
+cp conf/assignment.txt "${OUTDIR}/rootfs/home/conf/"
+cp conf/username.txt "${OUTDIR}/rootfs/home/conf/"
+
 # TODO: Chown the root directory
 
+sudo chown -Rf root:root "${OUTDIR}/rootfs"
+
 # TODO: Create initramfs.cpio.gz
+
+cd "${OUTDIR}/rootfs"
+
+find . | cpio -H newc -ov --owner root:root > "${OUTDIR}/initramfs.cpio"
+
+cd "${OUTDIR}"
+gzip -f initramfs.cpio 
