@@ -39,7 +39,7 @@ if [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ]; then
 	echo "Checking out version ${KERNEL_VERSION}"
 	git checkout ${KERNEL_VERSION}
 
-	# TODO: Add your kernel build steps here
+	# Add your kernel build steps here
 
 	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make mrproper
 	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make defconfig
@@ -59,7 +59,7 @@ then
 	sudo rm -rf ${OUTDIR}/rootfs
 fi
 
-# TODO: Create necessary base directories
+# Create necessary base directories
 
 mkdir rootfs
 cd rootfs
