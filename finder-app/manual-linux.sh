@@ -43,7 +43,7 @@ if [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ]; then
 
 	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make mrproper
 	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make defconfig
-	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make -j6
+	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make -j7
 	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make modules
 	ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} make dtbs
 fi
@@ -64,8 +64,8 @@ fi
 mkdir rootfs
 cd rootfs
 mkdir bin dev etc home lib lib64 proc sbin sys tmp usr var
-mkdir usr/bin usr/lib usr/sbin
-mkdir var/log
+mkdir -p usr/bin usr/lib usr/sbin
+mkdir -p var/log
 
 cd "${OUTDIR}"
 if [ ! -d "${OUTDIR}/busybox" ]
@@ -96,16 +96,16 @@ echo "Copying dependency files"
 TOOLCHAINPATH=$(dirname `which "${CROSS_COMPILE}gcc"`)
 TOOLCHAINDIR=$(dirname $TOOLCHAINPATH)
 echo $TOOLCHAINDIR
-cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib/ld-linux-aarch64.so.1" lib/ld-linux-aarch64.so.1
-cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib64/libm.so.6" lib64/libm.so.6
-cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib64/libresolv.so.2" lib64/libresolv.so.2
-cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib64/libc.so.6" lib64/libc.so.6
+cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib/ld-linux-aarch64.so.1" ./lib/
+cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib64/libm.so.6" ./lib64/
+cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib64/libresolv.so.2" ./lib64/
+cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib64/libc.so.6" ./lib64/
 echo "Done Copying dependency files"
 
 # Make device nodes
 
-sudo mknod -m 666 dev/null c 1 3
-sudo mknod -m 666 dev/console c 5 1
+sudo mknod -m 666 ./dev/null c 1 3
+sudo mknod -m 666 ./dev/console c 5 1
 
 # Clean and build the writer utility
 
@@ -129,7 +129,7 @@ cp conf/username.txt "${OUTDIR}/rootfs/conf/"
 
 # Chown the root directory
 
-sudo chown root:root "${OUTDIR}/rootfs"
+sudo chown -R root:root "${OUTDIR}/rootfs"
 
 # Create initramfs.cpio.gz
 
