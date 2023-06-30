@@ -5,13 +5,13 @@
 set -e
 set -u
 
-OUTDIR=/tmp/aeld
-KERNEL_REPO=git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
-KERNEL_VERSION=v5.1.10
-BUSYBOX_VERSION=1_33_1
-FINDER_APP_DIR=$(realpath $(dirname $0))
-ARCH=arm64
-CROSS_COMPILE=aarch64-none-linux-gnu-
+export OUTDIR=/tmp/aeld
+export KERNEL_REPO=git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
+export KERNEL_VERSION=v5.1.10
+export BUSYBOX_VERSION=1_33_1
+export FINDER_APP_DIR=$(realpath $(dirname $0))
+export ARCH=arm64
+export CROSS_COMPILE=aarch64-none-linux-gnu-
 
 if [ $# -lt 1 ]
 then
