@@ -104,8 +104,8 @@ echo "Done Copying dependency files"
 
 # Make device nodes
 
-sudo mknod -m 666 dev/null c 1 3
-sudo mknod -m 666 dev/console c 5 1
+mknod -m 666 dev/null c 1 3
+mknod -m 666 dev/console c 5 1
 
 # Clean and build the writer utility
 
@@ -129,7 +129,7 @@ cp conf/username.txt "${OUTDIR}/rootfs/conf/"
 
 # Chown the root directory
 
-sudo chown root:root "${OUTDIR}/rootfs"
+chown root:root "${OUTDIR}/rootfs"
 
 # Create initramfs.cpio.gz
 
