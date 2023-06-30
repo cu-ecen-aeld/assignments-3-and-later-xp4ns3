@@ -64,8 +64,8 @@ fi
 mkdir rootfs
 cd rootfs
 mkdir bin dev etc home lib lib64 proc sbin sys tmp usr var
-mkdir -p usr/bin usr/lib usr/sbin
-mkdir -p var/log
+mkdir usr/bin usr/lib usr/sbin
+mkdir var/log
 
 cd "${OUTDIR}"
 if [ ! -d "${OUTDIR}/busybox" ]
@@ -104,8 +104,8 @@ echo "Done Copying dependency files"
 
 # Make device nodes
 
-sudo mknod -m 666 dev/null c 1 3
-sudo mknod -m 666 dev/console c 5 1
+#sudo mknod -m 666 dev/null c 1 3
+#sudo mknod -m 666 dev/console c 5 1
 
 # Clean and build the writer utility
 
