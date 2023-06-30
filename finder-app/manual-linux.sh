@@ -74,7 +74,7 @@ then
 	cd busybox
 	git checkout ${BUSYBOX_VERSION}
 	
-	# TODO:  Configure busybox
+	# Configure busybox
 	
 	make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} distclean
 	make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} defconfig
@@ -82,7 +82,7 @@ else
 	cd busybox
 fi
 
-# TODO: Make and install busybox
+# Make and install busybox
 
 make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE}
 make CONFIG_PREFIX="${OUTDIR}/rootfs" ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} install
@@ -102,35 +102,36 @@ cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib64/libresolv.so.2" lib64/libr
 cp "${TOOLCHAINDIR}/aarch64-none-linux-gnu/libc/lib64/libc.so.6" lib64/libc.so.6
 echo "Done Copying dependency files"
 
-# TODO: Make device nodes
+# Make device nodes
 
 sudo mknod -m 666 dev/null c 1 3
 sudo mknod -m 666 dev/console c 5 1
 
-# TODO: Clean and build the writer utility
+# Clean and build the writer utility
 
 cd "${FINDER_APP_DIR}"
 make clean
 CROSS_COMPILE="$CROSS_COMPILE" make
 
-# TODO: Copy the finder related scripts and executables to the /home directory
+# Copy the finder related scripts and executables to the /home directory
 # on the target rootfs
 
 cp autorun-qemu.sh "${OUTDIR}/rootfs/home/"
 cp writer "${OUTDIR}/rootfs/home/"
 cp finder.sh "${OUTDIR}/rootfs/home/"
 cp finder-test.sh "${OUTDIR}/rootfs/home/"
-mkdir -p "${OUTDIR}/rootfs/conf/"
+mkdir "${OUTDIR}/rootfs/home/conf/"
 cp conf/assignment.txt "${OUTDIR}/rootfs/home/conf/"
 cp conf/username.txt "${OUTDIR}/rootfs/home/conf/"
+mkdir "${OUTDIR}/rootfs/conf/"
 cp conf/assignment.txt "${OUTDIR}/rootfs/conf/"
 cp conf/username.txt "${OUTDIR}/rootfs/conf/"
 
-# TODO: Chown the root directory
+# Chown the root directory
 
 sudo chown -Rf root:root "${OUTDIR}/rootfs"
 
-# TODO: Create initramfs.cpio.gz
+# Create initramfs.cpio.gz
 
 cd "${OUTDIR}/rootfs"
 
