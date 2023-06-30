@@ -120,9 +120,11 @@ cp autorun-qemu.sh "${OUTDIR}/rootfs/home/"
 cp writer "${OUTDIR}/rootfs/home/"
 cp finder.sh "${OUTDIR}/rootfs/home/"
 cp finder-test.sh "${OUTDIR}/rootfs/home/"
-mkdir "${OUTDIR}/rootfs/home/conf/"
 cp conf/assignment.txt "${OUTDIR}/rootfs/home/conf/"
 cp conf/username.txt "${OUTDIR}/rootfs/home/conf/"
+mkdir "${OUTDIR}/rootfs/conf/"
+cp conf/assignment.txt "${OUTDIR}/rootfs/conf/"
+cp conf/username.txt "${OUTDIR}/rootfs/conf/"
 
 # TODO: Chown the root directory
 
