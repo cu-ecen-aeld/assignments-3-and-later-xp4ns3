@@ -118,7 +118,7 @@ make ARCH="${ARCH}" CROSS_COMPILE="${CROSS_COMPILE}"
 
 cp autorun-qemu.sh "${OUTDIR}/rootfs/home/"
 cp writer "${OUTDIR}/rootfs/home/"
-cp finder.sh "${OUTDIR}/rootfs/home/"
+#cp finder.sh "${OUTDIR}/rootfs/home/"
 cp finder-test.sh "${OUTDIR}/rootfs/home/"
 mkdir -p "${OUTDIR}/rootfs/home/conf/"
 cp conf/assignment.txt "${OUTDIR}/rootfs/home/conf/"
