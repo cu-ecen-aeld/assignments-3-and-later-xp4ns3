@@ -1,6 +1,6 @@
 writer: writer.c
 ifeq ($(CROSS_COMPILE),aarch64-none-linux-gnu-)
-	aarch64-linux-gnu-gcc -o writer writer.c
+	aarch64-none-linux-gnu-gcc -o writer writer.c
 else
 	gcc -o writer writer.c
 endif
