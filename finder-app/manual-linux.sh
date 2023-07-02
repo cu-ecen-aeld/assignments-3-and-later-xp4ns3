@@ -104,8 +104,8 @@ echo "Done Copying dependency files"
 
 # Make device nodes
 
-sudo mknod dev/null c 1 3
-sudo mknod dev/console c 5 1
+sudo mknod -m 0666 dev/null c 1 3
+sudo mknod -m 0666 dev/console c 5 1
 
 # Clean and build the writer utility
 
