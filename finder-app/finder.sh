@@ -1,12 +1,12 @@
 #!/bin/bash
 
 if [ $# -ne 2 ]; then
-	echo "Wrong number of arguments, please retry."
+	echo "Wrong number of arguments."
 	exit 1
 fi
 
 if [ ! -d "$1" ]; then
-	echo ""$1" is not a directory, please retry."
+	echo ""$1" is not a directory."
 	exit 1
 fi
 
