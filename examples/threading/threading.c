@@ -10,23 +10,28 @@
 #define ERROR_LOG(msg,...) printf("threading ERROR: " msg "\n" , ##__VA_ARGS__)
 
 void* threadfunc(void* thread_param) {
-	
 	// TODO: wait, obtain mutex, wait, release mutex as described by thread_data structure
 	// hint: use a cast like the one below to obtain thread arguments from your parameter
     
 	printf("Running threadfunc()\n");
 	
 	struct thread_data *data = (struct thread_data *)thread_param;
-	usleep(data->wtime * 1000);
+	usleep(data->wtime);
 	pthread_mutex_lock(data->mutex);
-	usleep(data->rtime * 1000);
-	/* data->thread_complete_success = true; */
-	pthread_mutex_unlock(data->mutex);
-	data->thread_complete_success = true;
 	
+	printf("Locked!\n");
+
+	usleep(data->rtime * 1000);
+	data->thread_complete_success = true;
+
+	printf("thread_complete_success is true\n");
+
+	pthread_mutex_unlock(data->mutex);
+
+	printf("Unlocked!\n");
 	printf("Exiting threadfunc()\n");
 	
-	return thread_param;
+	return data;
 }
 
 
@@ -40,18 +45,18 @@ bool start_thread_obtaining_mutex(pthread_t *thread, pthread_mutex_t *mutex,int 
 	 * See implementation details in threading.h file comment block
 	 */
 	int ret;
-	/* void *res; */
 	
 	struct thread_data *data = malloc(sizeof(struct thread_data));
 	if (!data) {
 		printf("%d\n", errno);
 		return false;
 	}
-	
+
+	pthread_mutex_init(mutex, NULL);	
 	data->mutex = mutex;		
 	data->wtime = wait_to_obtain_ms;
 	data->rtime = wait_to_release_ms;
-	/* data->thread_complete_success = false; */
+	data->thread_complete_success = false;
 
 	printf("Going to run pthread_create()\n");
 	
@@ -62,17 +67,16 @@ bool start_thread_obtaining_mutex(pthread_t *thread, pthread_mutex_t *mutex,int 
 		return false;
 	}
 
-
 	printf("Successfully created thread %p\n", thread);
 
-	/* ret = pthread_join(*thread, &res);
+	ret = pthread_join(*thread, (void *)&data);
 	if (ret) {
 		printf("%d\n", errno);
 		free(data);
 		return false;
 	}
 
-	printf("Successfully joined with %p; returned value was %d\n", thread, ((struct thread_data *)res)->thread_complete_success); */
+	printf("Successfully joined with %p; returned value was %d\n", thread, data->thread_complete_success);
 
 	/* pthread_mutex_lock(mutex); */
 	/* if (data->thread_complete_success == false) { */
@@ -80,12 +84,14 @@ bool start_thread_obtaining_mutex(pthread_t *thread, pthread_mutex_t *mutex,int 
 		/* printf("thread_complete_success is false\n");
 		free(data); */
 		/* free(res); */
-		/* return false; */
-	} 
+		/* return false;
+	} */ 
 	/* pthread_mutex_unlock(mutex); */
 	
 	printf("thread_complete_success is true\n");
+
+	pthread_mutex_destroy(mutex);
 	free(data);
-	/* free(res); */
+
 	return true;
 }
