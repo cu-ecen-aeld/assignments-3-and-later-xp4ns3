@@ -78,17 +78,14 @@ bool start_thread_obtaining_mutex(pthread_t *thread, pthread_mutex_t *mutex,int 
 
 	printf("Successfully joined with %p; returned value was %d\n", thread, data->thread_complete_success);
 
-	pthread_mutex_lock(mutex);
 	if (data->thread_complete_success == false) {
-		pthread_mutex_unlock(mutex);
-		
+
 		printf("thread_complete_success is false\n");
 		
 		free(data);
 		return false;
 	} 
-	pthread_mutex_unlock(mutex);
-	
+
 	printf("thread_complete_success is true\n");
 
 	pthread_mutex_destroy(mutex);
