@@ -15,8 +15,8 @@ struct thread_data{
 	 * your thread implementation.
 	 */
 	pthread_mutex_t *mutex;
-	int wtime;
-	int rtime;
+	int w_time;
+	int r_time;
 	/**
 	 * Set to true if the thread completed with success, false
 	 * if an error occurred.
