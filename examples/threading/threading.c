@@ -16,7 +16,7 @@ void* threadfunc(void* thread_param) {
 	printf("Running threadfunc()\n");
 	
 	struct thread_data *data = (struct thread_data *)thread_param;
-	usleep(data->wtime);
+	usleep(data->wtime * 1000);
 	pthread_mutex_lock(data->mutex);
 	
 	printf("Locked!\n");
@@ -78,15 +78,16 @@ bool start_thread_obtaining_mutex(pthread_t *thread, pthread_mutex_t *mutex,int 
 
 	printf("Successfully joined with %p; returned value was %d\n", thread, data->thread_complete_success);
 
-	/* pthread_mutex_lock(mutex); */
-	/* if (data->thread_complete_success == false) { */
-		/* pthread_mutex_unlock(mutex); */
-		/* printf("thread_complete_success is false\n");
-		free(data); */
-		/* free(res); */
-		/* return false;
-	} */ 
-	/* pthread_mutex_unlock(mutex); */
+	pthread_mutex_lock(mutex);
+	if (data->thread_complete_success == false) {
+		pthread_mutex_unlock(mutex);
+		
+		printf("thread_complete_success is false\n");
+		
+		free(data);
+		return false;
+	} 
+	pthread_mutex_unlock(mutex);
 	
 	printf("thread_complete_success is true\n");
 
